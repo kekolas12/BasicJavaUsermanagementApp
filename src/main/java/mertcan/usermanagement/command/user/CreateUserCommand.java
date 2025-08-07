@@ -8,37 +8,32 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import mertcan.usermanagement.dto.UserDto;
 import mertcan.usermanagement.mediator.IRequest;
-import org.springframework.stereotype.Component;
-
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateUserCommand implements IRequest<UserDto> {
     
-    @NotBlank(message = "Kullanıcı adı boş olamaz")
-    @Size(min = 3, max = 50, message = "Kullanıcı adı 3-50 karakter arasında olmalıdır")
+    @NotBlank(message = "Username cannot be empty")
+    @Size(min = 3, max = 50, message = "Username must be between 3-50 characters")
     private String username;
     
-    @NotBlank(message = "Email boş olamaz")
-    @Email(message = "Geçerli bir email adresi giriniz")
+    @NotBlank(message = "Email cannot be empty")
+    @Email(message = "Please enter a valid email address")
     private String email;
     
-    @NotBlank(message = "Şifre boş olamaz")
-    @Size(min = 6, message = "Şifre en az 6 karakter olmalıdır")
+    @NotBlank(message = "Password cannot be empty")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
     
-    @NotBlank(message = "Ad boş olamaz")
-    @Size(max = 50, message = "Ad en fazla 50 karakter olabilir")
+    @NotBlank(message = "First name cannot be empty")
+    @Size(max = 50, message = "First name can be at most 50 characters")
     private String firstName;
     
-    @NotBlank(message = "Soyad boş olamaz")
-    @Size(max = 50, message = "Soyad en fazla 50 karakter olabilir")
+    @NotBlank(message = "Last name cannot be empty")
+    @Size(max = 50, message = "Last name can be at most 50 characters")
     private String lastName;
     
-    @Size(max = 20, message = "Telefon numarası en fazla 20 karakter olabilir")
+    @Size(max = 20, message = "Phone number can be at most 20 characters")
     private String phoneNumber;
-    
-    private Set<String> roleNames;
 }

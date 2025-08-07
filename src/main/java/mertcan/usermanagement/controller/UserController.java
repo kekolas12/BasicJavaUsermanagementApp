@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import mertcan.usermanagement.command.user.CreateUserCommand;
 import mertcan.usermanagement.command.user.DeleteUserCommand;
 import mertcan.usermanagement.command.user.UpdateUserCommand;
+import mertcan.usermanagement.command.user.UpdateUserRolesCommand;
 import mertcan.usermanagement.dto.UserDto;
 import mertcan.usermanagement.exception.ErrorResponse;
 import mertcan.usermanagement.mediator.IMediator;
@@ -53,8 +54,7 @@ public class UserController {
                             "email": "john.doe@example.com",
                             "password": "SecurePassword123!",
                             "firstName": "John",
-                            "lastName": "Doe",
-                            "roleNames": ["USER"]
+                            "lastName": "Doe"
                         }
                         """
                 )
@@ -78,7 +78,6 @@ public class UserController {
                             "firstName": "John",
                             "lastName": "Doe",
                             "isActive": true,
-                            "roles": ["USER"],
                             "createdAt": "2025-08-06T19:30:00",
                             "updatedAt": "2025-08-06T19:30:00"
                         }
@@ -453,7 +452,7 @@ public class UserController {
     })
     public ResponseEntity<Void> deleteUser(
             @Parameter(
-                description = "Silinecek kullanıcının ID'si", 
+                description = "ID of the user to delete", 
                 required = true,
                 example = "1",
                 schema = @Schema(type = "integer", format = "int64", minimum = "1")
@@ -461,5 +460,87 @@ public class UserController {
             @PathVariable Long id) {
         mediator.send(new DeleteUserCommand(id));
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+        summary = "Update user roles", 
+        description = "Updates roles for an existing user. Only users with ADMIN role can perform this operation.",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "New roles to assign to the user",
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = UpdateUserRolesCommand.class),
+                examples = @ExampleObject(
+                    name = "Example Role Update",
+                    value = """
+                    {
+                        "userId": 1,
+                        "roleNames": ["USER", "MODERATOR"]
+                    }
+                    """
+                )
+            )
+        )
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200", 
+            description = "User roles updated successfully",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = UserDto.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "400", 
+            description = "Invalid input data",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "401", 
+            description = "Authentication required",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "403", 
+            description = "Access denied - Admin role required",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "404", 
+            description = "User not found",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        )
+    })
+    public ResponseEntity<UserDto> updateUserRoles(
+            @Parameter(
+                description = "ID of the user whose roles will be updated", 
+                required = true,
+                example = "1",
+                schema = @Schema(type = "integer", format = "int64", minimum = "1")
+            )
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserRolesCommand command) {
+        
+        // Set the user ID from path parameter
+        command.setUserId(id);
+        
+        UserDto updatedUser = mediator.send(command);
+        return ResponseEntity.ok(updatedUser);
     }
 }

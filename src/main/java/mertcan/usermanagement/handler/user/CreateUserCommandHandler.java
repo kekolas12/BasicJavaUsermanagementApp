@@ -31,17 +31,17 @@ public class CreateUserCommandHandler implements IRequestHandler<CreateUserComma
     public UserDto handle(CreateUserCommand command) {
         log.info("Creating user with username: {}", command.getUsername());
         
-        // Kullanıcı adı kontrolü
+        // Username validation
         if (userRepository.existsByUsername(command.getUsername())) {
-            throw new BusinessException("Bu kullanıcı adı zaten kullanılmaktadır: " + command.getUsername());
+            throw new BusinessException("This username is already taken: " + command.getUsername());
         }
         
-        // Email kontrolü
+        // Email validation
         if (userRepository.existsByEmail(command.getEmail())) {
-            throw new BusinessException("Bu email adresi zaten kullanılmaktadır: " + command.getEmail());
+            throw new BusinessException("This email address is already in use: " + command.getEmail());
         }
         
-        // Kullanıcı oluştur
+        // Create user
         User user = new User();
         user.setUsername(command.getUsername());
         user.setEmail(command.getEmail());
@@ -52,27 +52,17 @@ public class CreateUserCommandHandler implements IRequestHandler<CreateUserComma
         user.setIsActive(true);
         user.setIsEmailVerified(false);
         
-        // Rolleri ata
+        // Assign default USER role
         Set<Role> roles = new HashSet<>();
-        if (command.getRoleNames() != null && !command.getRoleNames().isEmpty()) {
-            for (String roleName : command.getRoleNames()) {
-                Role role = roleRepository.findByName(roleName)
-                    .orElseThrow(() -> new BusinessException("Rol bulunamadı: " + roleName));
-                roles.add(role);
-            }
-        } else {
-            // Varsayılan olarak USER rolü ata
-            Role userRole = roleRepository.findByName("USER")
-                .orElseThrow(() -> new BusinessException("USER rolü bulunamadı"));
-            roles.add(userRole);
-        }
-        
+        Role userRole = roleRepository.findByName("USER")
+            .orElseThrow(() -> new BusinessException("USER role not found"));
+        roles.add(userRole);
         user.setRoles(roles);
         
-        // Kullanıcıyı kaydet
+        // Save user
         User savedUser = userRepository.save(user);
         
-        log.info("User created successfully with ID: {}", savedUser.getId());
+        log.info("User created successfully with ID: {} and default USER role", savedUser.getId());
         
         return convertToDto(savedUser);
     }
