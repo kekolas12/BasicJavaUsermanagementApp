@@ -477,7 +477,6 @@ public class UserController {
                     name = "Example Role Update",
                     value = """
                     {
-                        "userId": 1,
                         "roleNames": ["USER", "MODERATOR"]
                     }
                     """
