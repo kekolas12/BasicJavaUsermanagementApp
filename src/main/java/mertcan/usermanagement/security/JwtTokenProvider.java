@@ -39,7 +39,7 @@ public class JwtTokenProvider {
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
         
-        return Jwts.builder()
+        String token = Jwts.builder()
             .setSubject(userPrincipal.getUsername())
             .claim("userId", userPrincipal.getId())
             .claim("authorities", authorities)
@@ -48,6 +48,8 @@ public class JwtTokenProvider {
             .setExpiration(expiryDate)
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
             .compact();
+            
+        return "MERTCAN-" + token;
     }
     
     public String generateTokenFromUser(User user) {
@@ -57,7 +59,7 @@ public class JwtTokenProvider {
             .map(role -> "ROLE_" + role.getName())
             .collect(Collectors.joining(","));
         
-        return Jwts.builder()
+        String token = Jwts.builder()
             .setSubject(user.getUsername())
             .claim("userId", user.getId())
             .claim("authorities", authorities)
@@ -66,33 +68,45 @@ public class JwtTokenProvider {
             .setExpiration(expiryDate)
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
             .compact();
+            
+        return "MERTCAN-" + token;
+    }
+    
+    private String removePrefix(String token) {
+        if (token != null && token.startsWith("MERTCAN-")) {
+            return token.substring(8); // "MERTCAN-" has 8 characters
+        }
+        return token;
     }
     
     public String getUsernameFromToken(String token) {
+        String cleanToken = removePrefix(token);
         Claims claims = Jwts.parserBuilder()
             .setSigningKey(getSigningKey())
             .build()
-            .parseClaimsJws(token)
+            .parseClaimsJws(cleanToken)
             .getBody();
         
         return claims.getSubject();
     }
     
     public Long getUserIdFromToken(String token) {
+        String cleanToken = removePrefix(token);
         Claims claims = Jwts.parserBuilder()
             .setSigningKey(getSigningKey())
             .build()
-            .parseClaimsJws(token)
+            .parseClaimsJws(cleanToken)
             .getBody();
         
         return claims.get("userId", Long.class);
     }
     
     public Date getExpirationDateFromToken(String token) {
+        String cleanToken = removePrefix(token);
         Claims claims = Jwts.parserBuilder()
             .setSigningKey(getSigningKey())
             .build()
-            .parseClaimsJws(token)
+            .parseClaimsJws(cleanToken)
             .getBody();
         
         return claims.getExpiration();
@@ -100,10 +114,11 @@ public class JwtTokenProvider {
     
     public boolean validateToken(String authToken) {
         try {
+            String cleanToken = removePrefix(authToken);
             Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
-                .parseClaimsJws(authToken);
+                .parseClaimsJws(cleanToken);
             return true;
         } catch (SecurityException ex) {
             log.error("Geçersiz JWT imzası");
