@@ -589,13 +589,13 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 <div align="center">
 
 <p>
-  <a href="https://github.com/yourusername/usermanagement/issues">
+  <a href="https://github.com/kekolas12/usermanagement/issues">
     <img src="https://img.shields.io/badge/Issues-GitHub-red?style=for-the-badge&logo=github" alt="Issues"/>
   </a>
-  <a href="mailto:your.email@example.com">
+  <a href="mailto:mmeto340@gmail.com">
     <img src="https://img.shields.io/badge/Email-Contact-blue?style=for-the-badge&logo=mail.ru" alt="Email"/>
   </a>
-  <a href="https://linkedin.com/in/yourprofile">
+  <a href="https://www.linkedin.com/in/mertcan-topdemir-575235295">
     <img src="https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin" alt="LinkedIn"/>
   </a>
 </p>
